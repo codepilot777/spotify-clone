@@ -5,7 +5,7 @@ import { createContext, useState, useEffect, useContext } from "react";
 
 type UserContextType = {
   accessToken: string | null;
-  user: User
+  user: User | null;
   userDetails: UserDetails | null;
   isLoading: boolean;
   subscription: Subscription | null;
@@ -32,7 +32,7 @@ export const MyUserContextProvider = (props: Props) => {
   const [subscription, setSubscription] = useState<Subscription | null>(null);
 
   const getUserDetails =() => supabase.from('users').select('*').single();
-  const getSubscription = () => supabase.from('subscriptions').select('*, prices(*, products((').in('status', ['trialing', 'active']).single();
+  const getSubscription = () => supabase.from('subscriptions').select('*, prices(*, products(*))').in('status', ['trialing', 'active']).single();
   useEffect(() => {
     if (user && !isLoadingData && !userDetails && !subscription) {
       setisLoadingData(true);
@@ -61,7 +61,7 @@ export const MyUserContextProvider = (props: Props) => {
     isLoading: isLoadingUser || isLoadingData,
     subscription
   };
-  return <MyUserContextProvider value={value} {...props} />
+  return <UserContext.Provider value={value} {...props} />
 }
 
 export const useUser = () => {
