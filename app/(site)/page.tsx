@@ -5,7 +5,7 @@ import PageContent from '../components/PageContent'
 
 export const revalidate = 0;
 
-export default function Home() {
+export default async function Home() {
   const songs = await getSongs();
   return (
     <div className="w-full h-full overflow-hidden overflow-y-auto rounded-lg bg-neutral-900">
