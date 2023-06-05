@@ -19,4 +19,4 @@ const getSongs = async (): Promise<Song []> => {
     return (data as any) || [];
 }
 
-export default getSongs();
+export default getSongs;
