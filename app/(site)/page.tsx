@@ -1,10 +1,10 @@
 import Header from "@/components/Header"
 import ListItem from "@/components/ListItem"
-import getSongs from '@/actions/getSongs'
+import getSongs from '@/actions/getSongs';
 
 export const revalidate = 0;
 
-export default function Home() {
+export default async function Home() {
   const songs = await getSongs();
   return (
     <div className="w-full h-full overflow-hidden overflow-y-auto rounded-lg bg-neutral-900">
