@@ -2,6 +2,7 @@
 
 import { Song } from '@/types';
 import MediaItem from '@/components/MediaItem';
+import LikeButton from '@/components/LikeButton';
 
 interface SearchContentProps {
   songs: Song[];
@@ -12,7 +13,7 @@ const SearchContent: React.FC<SearchContentProps> = ({
 }) => {
   if (songs.length === 0){
     return (
-      <div className="flex flex-col w-full px-6  gap-y-2 text-neutral-400">
+      <div className="flex flex-col w-full px-6 gap-y-2 text-neutral-400">
         No songs found.
       </div>
     )
@@ -28,7 +29,7 @@ const SearchContent: React.FC<SearchContentProps> = ({
                 data={song}
               />
             </div>
-            {/* TODO: Add like button here */}
+            <LikeButton songId={song.id} />
           </div>
         ))
       }
