@@ -101,7 +101,68 @@ const copyBillingDetailsToCustomer = async (
 ) => {
   const customer = payment_method.customer as string;
   const { name, phone, address } = payment_method.billing_details;
-  if (!name || !phone || !address) {
-    
+  if (!name || !phone || !address) return;
+  // @ts-ignore
+  await stripe.customers.update(customer, { name, phone, address });
+  const { error } = await supabaseAdmin
+  .from('users')
+  .update({
+    billing_address: {...address},
+    payment_method: {...payment_method[payment_method.type]},
+  })
+  .eq('id', uuid);
+
+  if (error) {
+    throw error;
   }
+  
+}
+
+export const manageSubscriptionStatusChanges = async (
+  subscriptionId: string,
+  customerId: string,
+  createAction = false
+) => {
+  const { data: customerData, error: noCustomerError } = await supabaseAdmin
+  .from('customers')
+  .select('id')
+  .eq('stripe_customer_id', customerId)
+  .single();
+  
+  if (noCustomerError) {
+    throw noCustomerError;
+  }
+  const { id: uuid } = customerData!;
+  
+  const subscription = await stripe.subscriptions.retrieve(
+    subscriptionId,
+    {
+      expand: ['default_payment_method']
+    }
+  );
+  const subscriptionData: Database["public"]["Tables"]['subscriptions']["Insert"] = {
+    id: subscription.id,
+    user_id: uuid,
+    metadata: subscription.metadata,
+    // @ts-ignore
+    status: subscription.status,
+    price_id: subscription.items.data[0].price.id,
+    // @ts-ignore
+    quantity: subscription.quantity,
+    cancel_at_period_end: subscription.cancel_at_period_end,
+    cancel_at: subscription.cancel_at ? toDatetime(subscription.cancel_at).toISOString() : null,
+    canceled_at: subscription.canceled_at ? toDatetime(subscription.canceled_at).toISOString() : null,
+    current_period_start: toDatetime(subscription.current_period_start).toISOString(),
+    current_period_end: toDatetime(subscription.current_period_end).toISOString(),
+    ended_at: subscription.ended_at ? toDatetime(subscription.ended_at).toISOString() : null,
+    trial_start: subscription.trial_start ? toDatetime(subscription.trial_start).toISOString() : null,
+    trial_end: subscription.trial_end ? toDatetime(subscription.trial_end).toISOString() : null,
+  };
+
+  const { error } = await supabaseAdmin
+  .from('subscriptions')
+  .upsert([subscriptionData])
+
+  if (error) throw Error;
+
 }
