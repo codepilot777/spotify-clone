@@ -47,7 +47,7 @@ const upsertPriceRecord = async (price: Stripe.Price) => {
   }
 
   const { error } = await supabaseAdmin
-  .from('price')
+  .from('prices')
   .upsert([priceData])
   if (error) {
     throw error;
@@ -57,7 +57,7 @@ const upsertPriceRecord = async (price: Stripe.Price) => {
 
 }
 
-const createOrRetrieveACustomer = async ({
+const createOrRetrieveCustomer = async ({
   email,
   uuid
 }: {
@@ -118,7 +118,7 @@ const copyBillingDetailsToCustomer = async (
   
 }
 
-export const manageSubscriptionStatusChanges = async (
+const manageSubscriptionStatusChanges = async (
   subscriptionId: string,
   customerId: string,
   createAction = false
@@ -164,5 +164,20 @@ export const manageSubscriptionStatusChanges = async (
   .upsert([subscriptionData])
 
   if (error) throw Error;
+  console.log(`Inserted / Updated subscription: ${subscription.id} for user ${uuid}`);
+  if (createAction && subscription.default_payment_method && uuid) {
+    await copyBillingDetailsToCustomer(
+      uuid,
+      subscription.default_payment_method as Stripe.PaymentMethod
+    )
+  }
 
+  
+}
+
+export {
+  upsertProductRecord,
+  upsertPriceRecord,
+  createOrRetrieveCustomer,
+  manageSubscriptionStatusChanges
 }
