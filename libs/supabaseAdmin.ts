@@ -66,11 +66,11 @@ const createOrRetrieveCustomer = async ({
 }) => {
   const { data, error } = await supabaseAdmin
   .from('customers')
-  .select('striped_customer_id')
+  .select('stripe_customer_id')
   .eq('id', uuid)
   .single();
 
-  if (error || !data?.striped_customer_id) {
+  if (error || !data?.stripe_customer_id) {
     const customerData: {
       metadata: {
         supabaseUUID: string 
@@ -84,7 +84,7 @@ const createOrRetrieveCustomer = async ({
   const customer = await stripe.customers.create(customerData);
   const { error: supabaseError } = await supabaseAdmin
     .from('customers')
-    .insert({ id: uuid, stripe_customer_id: customer.id})
+    .insert([{ id: uuid, stripe_customer_id: customer.id}])
 
   if (supabaseError) {
     throw supabaseError;
@@ -92,7 +92,7 @@ const createOrRetrieveCustomer = async ({
   console.log(`New customer created and inserted for ${uuid}`);
   return customer.id
   }
-  return data.striped_customer_id;
+  return data.stripe_customer_id;
 }
 
 const copyBillingDetailsToCustomer = async (

@@ -1,4 +1,4 @@
-import { createRouteHandlerClinet } from '@supabase/auth-helpers-nextjs';
+import { createRouteHandlerClient } from '@supabase/auth-helpers-nextjs';
 import { cookies } from 'next/headers';
 import { NextResponse } from 'next/server';
 
@@ -8,7 +8,7 @@ import { createOrRetrieveCustomer } from '@/libs/supabaseAdmin';
 
 export async function POST() {
     try {
-        const supabase = createRouteHandlerClinet({
+        const supabase = createRouteHandlerClient({
             cookies
         })
 
